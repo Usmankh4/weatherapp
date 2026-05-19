@@ -1,9 +1,90 @@
-* {
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
+@import "./App.css";
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --sky-top: #1e3a8a;
+  --sky-mid: #3b82f6;
+  --sky-bottom: #7dd3fc;
+  --cloud: rgba(255, 255, 255, 0.55);
+  --glass: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --text-on-sky: #f8fafc;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --error-bg: rgba(254, 226, 226, 0.95);
+  --error-text: #b91c1c;
+  --shadow-soft: 0 8px 32px rgba(15, 23, 42, 0.12);
+  --shadow-card: 0 20px 50px rgba(15, 23, 42, 0.18);
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+html {
+  font-size: 16px;
+}
+
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: linear-gradient(
+    165deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 42%,
+    var(--sky-bottom) 100%
+  );
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  background: var(--cloud);
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  width: 180px;
+  height: 60px;
+  top: 12%;
+  left: 8%;
+  box-shadow:
+    60px 10px 0 -8px var(--cloud),
+    120px 5px 0 -12px var(--cloud),
+    280px 40px 0 -10px rgba(255, 255, 255, 0.4),
+    340px 35px 0 -14px rgba(255, 255, 255, 0.35);
+}
+
+body::after {
+  width: 140px;
+  height: 50px;
+  bottom: 18%;
+  right: 10%;
+  box-shadow:
+    50px 8px 0 -6px var(--cloud),
+    100px 0 0 -10px rgba(255, 255, 255, 0.38);
+}
+
+#root {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
