@@ -5,9 +5,21 @@ export async function getCurrentWeather(city){
     const url = `${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`;
     const response = await fetch(url);
     if(!response.ok){
-        throw new Error('City not found!');
+        throw new Error('City Not Found');
     }
     const data = await response.json();
-    console.log('Weather Data:',data);
+    return data;
+}
+
+
+
+
+export async function getForecast(city){
+    const url = `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`;
+    const response = await fetch(url);
+    if(!response.ok){
+        throw new Error('Could not fetch forecast data');
+    }
+    const data = await response.json()
     return data;
 }
