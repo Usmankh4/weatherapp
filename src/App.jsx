@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import SearchForm from "./components/SearchForm";
 import { getCurrentWeather, getForecast } from "./api/weatherApi";
@@ -15,6 +15,9 @@ function App() {
   const [currentWeather, setCurrentWeather] = useState(null);
   const [unit, setUnit] = useState("C");
   const [forecast, setForecast] = useState([]);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
 
   
   
@@ -28,17 +31,39 @@ function App() {
       const cleanForecastData = transformForecastList(forecastData.list);
       setForecast(cleanForecastData);
       setCurrentWeather(data);
+      localStorage.setItem('lastCity', city);
     } catch (err) {
       setError(err.message);
       setCurrentWeather(null);
-      setForecast(null);
+      setForecast([]);
     } finally {
       setIsLoading(false);
     }
   }
 
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    document.body.classList.toggle('dark', theme === 'dark');
+    return () => document.body.classList.remove('dark');
+  }, [theme]);
+
+  useEffect(() =>{
+    const savedCity = localStorage.getItem('lastCity');
+
+    if(savedCity){
+      handleSearch(savedCity)
+    }
+  },[])
+
   function handleToggle(){
     setUnit(prev => prev === "C" ? "F": "C");
+  }
+
+  function handleThemeToggle() {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   }
   
   let content;
@@ -74,7 +99,11 @@ function App() {
 
   return (
     <div className="app">
-      <Header title="Weather Dashboard" />
+      <Header
+        title="Weather Dashboard"
+        theme={theme}
+        onThemeToggle={handleThemeToggle}
+      />
       <SearchForm onSearch={handleSearch} />
     
       
@@ -86,13 +115,12 @@ function App() {
         )}
 
         {forecast.length > 0 && !isLoading && !error && (
-          <div>
-            <h1>5-Day Forecast</h1>
-            {forecast.map((day) =>(
-              <ForeCast key={day.date} forecast={day} unit={unit} />
-            )
-          )}
+          <div className="forecast-section">
+          <h2>5-Day Forecast</h2>      
+          <div className="forecast-list">
+            {forecast.map((day) => <ForeCast key={day.date} day={day} unit={unit} />)}
           </div>
+        </div>
         )}
       {content}
     </div>

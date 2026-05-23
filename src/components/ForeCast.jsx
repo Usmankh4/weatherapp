@@ -1,9 +1,9 @@
 import { celsiusToFahrenheit } from '../utils/celsiusConverter';
 import {iconUrl} from '../utils/urlBuilder';
 
-function ForeCast({forecast, unit}){
+function ForeCast({ day, unit }){
 
-    const { date, high, low,icon, description} = forecast;
+    const { date, high, low,icon, description } = day;
 
     const highTemp = unit === 'F' ? celsiusToFahrenheit(high) : high;
     const lowTemp = unit === 'F' ? celsiusToFahrenheit(low) : low;
@@ -11,8 +11,8 @@ function ForeCast({forecast, unit}){
         <div>
             <p>{date}</p>
             <img src={iconUrl(icon)} alt={description}/>
-            <p>{Math.round(highTemp)}</p>
-            <p>{Math.round(lowTemp)}</p>
+            <p>High: {Math.round(highTemp)} °{unit}</p>
+            <p>Low: {Math.round(lowTemp)} °{unit}</p>
             <p>{description}</p>
 
         </div>
