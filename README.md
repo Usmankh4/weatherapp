@@ -88,7 +88,7 @@ src/
 └── index.css                   # reset, theme variables, layout, responsive styles
 ```
 
-**Architectural discipline:** each folder has one job. The `api/` layer fetches data and returns it raw. The `utils/` layer holds pure functions with no React. The `components/` layer is presentational. `App.jsx` is the orchestrator — it holds state, owns handlers, and composes everything together.
+**Architectural discipline:** each folder has one job. The `api/` layer fetches data and returns it raw. The `utils/` layer holds pure functions with no React. The `components/` layer is presentational. `App.jsx` is the orchestrator, it holds state, owns handlers, and composes everything together.
 
 ---
 
