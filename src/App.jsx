@@ -2,14 +2,20 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import SearchForm from "./components/SearchForm";
 import { getCurrentWeather, getForecast } from "./api/weatherApi";
-import { iconUrl} from "./utils/urlBuilder";
+import { iconUrl } from "./utils/urlBuilder";
 import { celsiusToFahrenheit } from "./utils/celsiusConverter";
 import { transformForecastList } from './utils/forecastList';
 import ForeCast from "./components/ForeCast";
 
+function formatCurrentDate() {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 function App() {
-
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [currentWeather, setCurrentWeather] = useState(null);
@@ -19,9 +25,6 @@ function App() {
     return localStorage.getItem('theme') || 'light';
   });
 
-  
-  
-  
   async function handleSearch(city) {
     try {
       setIsLoading(true);
@@ -50,79 +53,102 @@ function App() {
     return () => document.body.classList.remove('dark');
   }, [theme]);
 
-  useEffect(() =>{
+  useEffect(() => {
     const savedCity = localStorage.getItem('lastCity');
-
-    if(savedCity){
-      handleSearch(savedCity)
+    if (savedCity) {
+      handleSearch(savedCity);
     }
-  },[])
+  }, []);
 
-  function handleToggle(){
-    setUnit(prev => prev === "C" ? "F": "C");
+  function handleToggle() {
+    setUnit(prev => prev === "C" ? "F" : "C");
   }
 
   function handleThemeToggle() {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   }
-  
-  let content;
-
-  if (isLoading) {
-    content = <p>Loading...</p>;
-  } else if (error) {
-    content = (
-      <div>
-        <p>{error}</p>
-      </div>
-    );
-  } else if (currentWeather) {
-    const iconCode = currentWeather.weather[0].icon;
-    const iconUrlImage = iconUrl(iconCode)
-    const description = currentWeather.weather[0].description;
-    const celsiusTemperature = currentWeather.main.temp;
-    const displayTemperature = unit === 'F' ? celsiusToFahrenheit(celsiusTemperature) : celsiusTemperature;
-
-    content = (
-      <div>
-        <p>City: {currentWeather.name}</p>
-        <p>Temperature: {Math.round(displayTemperature)}°{unit}</p>
-        <img src={iconUrlImage} alt={description}/>
-        <p>Humidity: {currentWeather.main.humidity}%</p>
-        <p> Wind: {currentWeather.wind.speed} m/s</p>
-        <p>Description: {currentWeather.weather[0].description}</p>
-      </div>
-    );
-  } else {
-    content = <p>Search for a city to see the weather</p>;
-  }
 
   return (
     <div className="app">
-      <Header
-        title="Weather Dashboard"
-        theme={theme}
-        onThemeToggle={handleThemeToggle}
-      />
-      <SearchForm onSearch={handleSearch} />
-    
-      
+      <Header theme={theme} onThemeToggle={handleThemeToggle} />
+      <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-        {currentWeather && !isLoading && !error && (
-          <button onClick={handleToggle}>
-             Show °{unit === 'C' ? 'F': 'C'}
-             </button>
-        )}
-
-        {forecast.length > 0 && !isLoading && !error && (
-          <div className="forecast-section">
-          <h2>5-Day Forecast</h2>      
-          <div className="forecast-list">
-            {forecast.map((day) => <ForeCast key={day.date} day={day} unit={unit} />)}
+      {isLoading && (
+        <div className="status-message loading" role="status">
+          <div className="loading-dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
           </div>
+          <p>Fetching forecast</p>
         </div>
-        )}
-      {content}
+      )}
+
+      {!isLoading && error && (
+        <p className="error-message" role="alert">{error}</p>
+      )}
+
+      {!isLoading && !error && !currentWeather && (
+        <p className="status-message">Enter a city to see current conditions and a 5-day outlook.</p>
+      )}
+
+      {!isLoading && !error && currentWeather && (
+        <section className="weather-panel" aria-label="Current weather">
+          <article className="weather-card">
+            <div className="weather-card-header">
+              <div className="weather-location">
+                <h2 className="weather-city">{currentWeather.name}</h2>
+                <time className="weather-date" dateTime={new Date().toISOString().split('T')[0]}>
+                  {formatCurrentDate()}
+                </time>
+              </div>
+              <button type="button" className="unit-toggle" onClick={handleToggle}>
+                °{unit === 'C' ? 'F' : 'C'}
+              </button>
+            </div>
+
+            <div className="weather-main">
+              <div className="weather-temp-block">
+                <span className="weather-temp">
+                  {Math.round(unit === 'F'
+                    ? celsiusToFahrenheit(currentWeather.main.temp)
+                    : currentWeather.main.temp)}
+                </span>
+                <span className="weather-unit">°{unit}</span>
+              </div>
+              <div className="weather-icon-wrap">
+                <img
+                  src={iconUrl(currentWeather.weather[0].icon)}
+                  alt={currentWeather.weather[0].description}
+                />
+              </div>
+              <p className="weather-description">{currentWeather.weather[0].description}</p>
+            </div>
+
+            <div className="weather-stats">
+              <div className="stat">
+                <span className="stat-label">Humidity</span>
+                <span className="stat-value">{currentWeather.main.humidity}%</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Wind</span>
+                <span className="stat-value">{currentWeather.wind.speed} m/s</span>
+              </div>
+            </div>
+          </article>
+
+          {forecast.length > 0 && (
+            <section className="forecast-section" aria-label="5-day forecast">
+              <h3 className="forecast-heading">Next 5 days</h3>
+              <div className="forecast-list">
+                {forecast.map((day) => (
+                  <ForeCast key={day.date} day={day} unit={unit} />
+                ))}
+              </div>
+            </section>
+          )}
+        </section>
+      )}
     </div>
   );
 }
